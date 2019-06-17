@@ -5,17 +5,21 @@ using UnityEngine.UI;
 
 public class CanvasController : MonoBehaviour
 {
+    public Vector3 wallPosition;
+    public GameObject target;
+
+    public Slider sliderX;
+    public Slider sliderY;
+    public Slider sliderZ;
+
     Canvas canvas;
-    // Start is called before the first frame update
+
+    bool isScaleLocked;
+    enum Axis { X, Y, Z };
+    
     void Start()
     {
         canvas = GetComponent<Canvas>();
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
     public void SwapCanvasSpace()
     {
@@ -25,7 +29,7 @@ public class CanvasController : MonoBehaviour
                 canvas.renderMode = RenderMode.WorldSpace;
                 canvas.worldCamera = Camera.main;
                 canvas.transform.localScale = new Vector3(0.001f, 0.001f, 0.001f);
-                canvas.transform.position = new Vector3(-0.5f, 1.5f, 3);
+                canvas.transform.position = wallPosition;
                 break;
             case RenderMode.WorldSpace:
                 canvas.renderMode = RenderMode.ScreenSpaceOverlay;
@@ -33,6 +37,51 @@ public class CanvasController : MonoBehaviour
                 canvas.transform.position = new Vector3(960, 540, 0);
                 break;
 
+        }
+    }
+    public void ToggleScaleLock(bool value)
+    {
+        isScaleLocked = value;
+    }
+    public void ChangeScaleX(float value)
+    {
+        if (isScaleLocked)
+            ChangeScaleUniform(Axis.X, value);
+        else
+            target.transform.localScale = new Vector3(value, target.transform.localScale.y, target.transform.localScale.z);
+    }
+    public void ChangeScaleY(float value)
+    {
+        if (isScaleLocked)
+            ChangeScaleUniform(Axis.Y, value);
+        else
+            target.transform.localScale = new Vector3(target.transform.localScale.x, value, target.transform.localScale.z);
+    }
+    public void ChangeScaleZ(float value)
+    {
+        if (isScaleLocked)
+            ChangeScaleUniform(Axis.Z, value);
+        else
+            target.transform.localScale = new Vector3(target.transform.localScale.x, target.transform.localScale.y, value);
+    }
+    void ChangeScaleUniform(Axis axis, float value)
+    {
+        target.transform.localScale = new Vector3(value, value, value);
+
+        switch(axis)
+        {
+            case Axis.X:
+                sliderY.value = value;
+                sliderZ.value = value;
+                break;
+            case Axis.Y:
+                sliderX.value = value;
+                sliderZ.value = value;
+                break;
+            case Axis.Z:
+                sliderX.value = value;
+                sliderY.value = value;
+                break;
         }
     }
 }
